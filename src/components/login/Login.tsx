@@ -1,16 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import {
-  Box,
-  Paper,
-  TextField,
-  Button,
-  Snackbar,
-  Alert
-} from "@mui/material";
-import { AccountCircle } from '@mui/icons-material';
+import { Paper, TextField, Typography, Button, Snackbar, Alert } from "@mui/material";
+import { AccountCircle } from "@mui/icons-material";
 
-import axios from 'axios';
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 interface Account {
@@ -24,92 +17,64 @@ interface State {
   account: Account;
 }
 
-
 const Login = () => {
-
-  const [state, setState] = React.useState<State>({
-    value: '',
-    disabled: true,
-    account: null as unknown as Account,
-  });
-
+  const [userName, setUserName] = React.useState("");
+  const [error, setError] = React.useState(null);
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!!state && !!state.account && state.account.valid) {
-      navigate(`${state.value}/products`);
-    }
-  });
-  
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    setState({
-      value,
-      disabled: !!value && value.length > 2 ? false : true,
-      account: null as unknown as Account,
-    })
+    setUserName(event.target.value);
   };
 
+  const canSubmit = () => userName.length > 2;
+
   const getUserByName = () => {
-      axios.get(`http://localhost:8080/users/${state.value}`).then(() => {
-        setState({
-          ...state,
-          account: {
-            name: state.value,
-            valid: true
-          }
-        })
-      }).catch((e) => {
-        setState({
-          ...state,
-          account: {
-            name: state.value,
-            valid: false
-          }
-        })
+    const {REACT_APP_API_BASE_URL} = process.env;
+    axios
+      .get(`${REACT_APP_API_BASE_URL}/users/${userName}`)
+      .then((user) => {
+        navigate(`${userName}`);
       })
-  }
-  
-  
+      .catch((e) => {
+        setError(e.message);
+      });
+  };
+
   return (
-      <div>
-      <Box
-        height='100vh'
-        display='flex'
-        justifyContent='center'
-        alignItems='center'
-        flexDirection='column'
-        sx = {{ background: 'rgb(40, 44, 52)'}}
+    <div>
+      <Paper
+        elevation={3}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          padding: "1rem",
+          backgroundColor: "secondary.dark",
+        }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '1rem',
-            backgroundColor: 'secondary.dark'
-          }}
-        >
-        <AccountCircle sx={{ color: 'action.active', mr: 1 }} />
-        <TextField id='user-name' label='User Name' variant='standard'
-            value={state.value}
-            onChange= {handleChange}/>
-        <Button variant='contained' sx={{margin: '1rem 1rem'}} 
-          disabled={state.disabled}
+        <AccountCircle sx={{ color: "action.active", mr: 1 }} />
+        <TextField
+          id="user-name"
+          label="User Name"
+          variant="standard"
+          value={userName}
+          onChange={handleChange}
+        />
+        <Button
+          variant="contained"
+          sx={{ margin: "1rem 1rem" }}
+          disabled={!canSubmit}
           onClick={getUserByName}
         >
-          LogIn
+          <Typography>LogIn</Typography>
         </Button>
-        </Paper>
-      </Box>
-      <Snackbar open={!!state && !!state.account && !state.account.valid} autoHideDuration={6000}>
-        <Alert severity="error" sx={{ width: '100%' }}>
-          User doesn't exists!
+      </Paper>
+      <Snackbar open={!!error} autoHideDuration={6000}>
+        <Alert severity="error" sx={{ width: "100%" }}>
+          {error}
         </Alert>
       </Snackbar>
-      </div>
-    
-  )
-}
+    </div>
+  );
+};
 
 export default Login;

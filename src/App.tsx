@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import {
   Box,
@@ -7,29 +7,31 @@ import {
   ThemeProvider,
   Typography,
   TextField,
-  Button
+  Button,
 } from "@mui/material";
-import { AccountCircle } from '@mui/icons-material';
+import { AccountCircle } from "@mui/icons-material";
 import { createTheme } from "@mui/material/styles";
 
-import {
-  useRoutes
-} from 'react-router-dom'
+import { useRoutes } from "react-router-dom";
 
-import Login  from './components/login/Login';
-import Products  from './components/products/Products';
+import Login from "./components/login/Login";
+import Products from "./components/home/Home";
+import Cart from "./components/cart/Cart";
 
-const App = () => (
+const App = () =>
   useRoutes([
     {
       path: "/",
       element: <Login />,
     },
     {
-      path: ':user/products',
-      element: <Products />
+      path: ":user",
+      element: <Products />,
+    },
+    {
+      path: ":user/cart",
+      element: <Cart />
     }
-  ])
-)
+  ]);
 
 export default App;
